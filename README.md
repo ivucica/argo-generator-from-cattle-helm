@@ -2,7 +2,7 @@ Starting point:
 
 > Write a fully functioning ArgoCD generator plugin (including the Dockerfile or equivalent to create the actual image either in Docker format or OCI format, and the command line to generate it) that can turn helm.cattle.io/v1 object HelmChart into the Argo equivalent (picking the chart and its values from spec.chart, spec.version, spec.repo, spec.valuesContent). There must be the minimal source code for the plugin, preferably in Go and built statically as simply and quickly as possible, with minimal imports (no matter the chosen language -- the goal is single binary, tiny OCI / Dockerfile with fewest build steps, fewest dependencies, while still turning that YAML into different output understood by ArgoCD generator). Include detailed instructions on how to configure ArgoCD to use this new image. Invent the image name.
 
-Instead of using `quay.io/my-org/argocd-helmchart-generator:v1.0.0`, removed hostname for now and using `argo-generator-from-cattle-helm:v1.0.0`.
+Instead of using `quay.io/my-org/argocd-helmchart-generator:v1.0.0`, removed hostname for now and using `argo-generator-from-cattle-helm:v1.0.0`. Then moved to releases as `ghcr.io/ivucica/argo-generator-from-cattle-helm`.
 
 Renamed binary from `helmchart-generator` to `argo-generator-from-cattle-helm`.
 
