@@ -56,3 +56,46 @@ spec:
         namespace: '{{namespace}}'
         server: "https://kubernetes.default.svc"
 ```
+
+
+
+## Config Management Plugins (CMPs)
+
+(generated explanation)
+
+* Purpose: To teach Argo CD how to render a new type of Kubernetes manifest. Its job is to take source files and turn them into standard Kubernetes YAML.
+* Answers the question: "For a single Application, how do I take these source files and produce the final Kubernetes manifests to be deployed?"
+* Who uses it: The argocd-repo-server. It is invoked during the sync process of an individual Application resource.
+* Input: The path to an application's source code.
+* Output: A stream of valid Kubernetes YAML manifests (Deployment, Service, ConfigMap, etc.).
+* Helm Chart values.yaml Configuration: configs.cmp.plugins and repoServer.extraContainers.
+
+## ApplicationSet Generator Plugins:
+
+(generated explanation)
+
+* Purpose: To discover parameters and generate multiple Application resources automatically.
+* Answers the question: "How do I find all the things in my repository/cloud/etc. that should become Argo CD Applications?"
+* Who uses it: The argocd-applicationset-controller. It uses this plugin to feed its list-based generator.
+* Input: A path specified in the ApplicationSet resource.
+* Output: A JSON object containing a list of parameters (e.g., chart, version, repoURL, name). These parameters are then used to stamp out Application resources from a template.
+* Helm Chart values.yaml Configuration: configs.cm."applicationset.generators.plugins" and repoServer.initContainers/volumeMounts (the plugin binary is still hosted on the repo-server).
+
+Actual non-generated proposal for applicationset plugin generator:
+
+https://argo-cd.readthedocs.io/en/stable/proposals/applicationset-plugin-generator/
+
+
+## Why the latter?
+
+(generated)
+
+Your original request was to: turn helm.cattle.io/v1 object HelmChart into the Argo equivalent
+
+The "Argo equivalent" of a deployed Helm chart is an Argo CD Application resource.
+
+Your goal is not to render the HelmChart custom resource itself. Your goal is to find all the HelmChart custom resources in a Git repository and use their spec fields as parameters to create new Application resources.
+
+If you used a CMP, you would create a single Argo CD Application that points to a directory of your HelmChart objects. The CMP would then run and... output the same HelmChart objects as YAML. It wouldn't create other Application resources. This doesn't achieve your goal.
+
+By using an ApplicationSet Generator Plugin, you create an ApplicationSet resource that points to the directory. The generator plugin runs, finds all your HelmChart objects, and outputs a list of parameters. The ApplicationSet controller then uses this list to generate a distinct Argo CD Application for each HelmChart it found. This perfectly matches your requirement.
