@@ -1,0 +1,21 @@
+spec:
+  template:
+    spec:
+      containers:
+      - name: argocd-repo-server
+        volumeMounts:
+        - name: custom-plugins
+          mountPath: /usr/local/bin/argo-generator-from-cattle-helm
+          subPath: helmchart-generator
+      initContainers:
+      - name: install-helmchart-generator
+        image: argo-generator-from-cattle-helm:v1.0.0
+        command: ["/bin/sh", "-c"]
+        args:
+        - "cp /usr/local/bin/argo-generator-from-cattle-helm /custom-plugins/argo-generator-from-cattle-helm"
+        volumeMounts:
+        - name: custom-plugins
+          mountPath: /custom-plugins
+      volumes:
+      - name: custom-plugins
+        emptyDir: {}
