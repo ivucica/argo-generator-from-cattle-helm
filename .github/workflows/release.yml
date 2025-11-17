@@ -49,3 +49,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+# Create and push a tag to trigger the action
+# git tag v1.0.0
+# git push origin v1.0.0
+
