@@ -83,11 +83,19 @@ func readPluginToken() {
 	}
 }
 
+// This is the new function for the probe
+func handleHealthz(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK) // Just send a 200 OK
+}
+
 func main() {
 	readPluginToken()
 	if pluginToken == "" {
 		log.Fatalf("Could not read token file after %d retries. Exiting.", maxRetries)
 	}
+
+	// Add a new handler for the health check
+	http.HandleFunc("/healthz", handleHealthz)
 
 	http.HandleFunc("/api/v1/getparams.execute", handleGetParams)
 	log.Println("Starting HelmChart plugin server on " + *address)
