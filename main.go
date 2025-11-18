@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,10 @@ import (
 	"gopkg.in/src-d/go-git.v4" // A popular Go Git library
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	address = flag.String("address", ":8083", "port to listen on")
 )
 
 // --- Structs for ArgoCD Plugin Communication ---
@@ -85,8 +90,8 @@ func main() {
 	}
 
 	http.HandleFunc("/api/v1/getparams.execute", handleGetParams)
-	log.Println("Starting HelmChart plugin server on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Println("Starting HelmChart plugin server on " + *address)
+	if err := http.ListenAndServe(*address, nil); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
