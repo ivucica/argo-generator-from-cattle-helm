@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"gopkg.in/src-d/go-git.v4" // A popular Go Git library
 	"gopkg.in/src-d/go-git.v4/plumbing"
@@ -50,14 +51,38 @@ type HelmChart struct {
 }
 
 var pluginToken string
+var maxRetries = 15
+
+func readPluginToken() {
+	// The ApplicationSet controller writes the token to this path.
+	tokenPath := "/var/run/argo/token"
+	retryInterval := 2 * time.Second
+
+	log.Printf("Waiting for token file at %s...", tokenPath)
+	for i := 0; i < maxRetries; i++ {
+		tokenBytes, err := os.ReadFile(tokenPath)
+		if err == nil {
+			log.Println("Token file found and read successfully.")
+			pluginToken = strings.TrimSpace(string(tokenBytes))
+			break
+		}
+
+		if os.IsNotExist(err) {
+			log.Printf("Token file not yet available, waiting... (%d/%d)", i+1, maxRetries)
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		// If it's another error (e.g., permissions), fail fast.
+		log.Fatalf("Failed to read token file with unexpected error: %v", err)
+	}
+}
 
 func main() {
-	// The ApplicationSet controller writes the token to this path.
-	tokenBytes, err := os.ReadFile("/var/run/argo/token")
-	if err != nil {
-		log.Fatalf("Failed to read token: %v", err)
+	readPluginToken()
+	if pluginToken == "" {
+		log.Fatalf("Could not read token file after %d retries. Exiting.", maxRetries)
 	}
-	pluginToken = strings.TrimSpace(string(tokenBytes))
 
 	http.HandleFunc("/api/v1/getparams.execute", handleGetParams)
 	log.Println("Starting HelmChart plugin server on :8080")
