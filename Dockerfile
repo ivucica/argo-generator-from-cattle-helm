@@ -4,8 +4,7 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /src
 
 # Copy Go module files
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 # Download dependencies
 RUN go mod download
 
@@ -20,6 +19,9 @@ FROM scratch
 
 # Copy the static binary from the builder stage
 COPY --from=builder /app/argo-generator-from-cattle-helm /usr/local/bin/
+
+# Expose the port the web service listens on
+EXPOSE 8080
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/argo-generator-from-cattle-helm"]
