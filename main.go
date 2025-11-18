@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"gopkg.in/src-d/go-git.v4" // A popular Go Git library
+	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/yaml.v3"
 )
 
