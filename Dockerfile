@@ -21,7 +21,7 @@ FROM scratch
 COPY --from=builder /app/argo-generator-from-cattle-helm /usr/local/bin/
 
 # Expose the port the web service listens on
-EXPOSE 8080
+EXPOSE 8083
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/argo-generator-from-cattle-helm"]
